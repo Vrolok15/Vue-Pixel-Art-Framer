@@ -1,0 +1,28 @@
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+  --color-background: #111111;
+  --color-element: #333333;
+  --color-border: #555555;
+  --color-highlight: #777777;
+  --color-text: #999999;
+}
+
+/* semantic color variables for this project */
+:root {
+
+}
+
+
+body {
+  color: var(--color-text);
+  background: var(--color-background);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.6;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Silkscreen', cursive;
+}

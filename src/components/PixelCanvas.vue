@@ -3,7 +3,14 @@
     <div class="canvas-container">
       <canvas id="pixel-canvas"></canvas>
       <div class="center-button">
-        <PixelButton>Load</PixelButton>
+        <PixelButton @click="triggerFileInput">Load</PixelButton>
+        <input 
+          type="file" 
+          ref="fileInput"
+          accept="image/png"
+          class="hidden-input"
+          @change="handleFileSelect"
+        >
       </div>
     </div>
     <div class="buttons-container">
@@ -20,6 +27,18 @@ export default {
   name: 'PixelCanvas',
   components: {
     PixelButton
+  },
+  methods: {
+    triggerFileInput() {
+      this.$refs.fileInput.click()
+    },
+    handleFileSelect(event) {
+      const file = event.target.files[0]
+      if (file) {
+        console.log('Selected file:', file.name)
+        // We'll handle the file loading in the next step
+      }
+    }
   }
 }
 </script>
@@ -58,5 +77,9 @@ export default {
   display: flex;
   gap: 20px;
   justify-content: center;
+}
+
+.hidden-input {
+  display: none;
 }
 </style> 

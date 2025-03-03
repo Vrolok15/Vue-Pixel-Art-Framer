@@ -1,6 +1,6 @@
 # Vue Pixel Art Framer
 
-I've always hated manually drawing frames around my pixel art sprites. So I made this tool to save myself some time, maybe you'll find it useful too.
+I've always hated manually drawing frames around my pixel art sprites. So I made this tool to save myself some time, maybe you'll find it useful too. Try it here - https://vue-pixel-art-framer-qhljrwc2a-vrolok15s-projects.vercel.app/
 
 ## Features
 

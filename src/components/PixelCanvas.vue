@@ -179,9 +179,9 @@ export default {
         for (const [nx, ny] of neighbors) {
           if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue
           const i = (ny * width + nx) * 4
-        })
           if (data[i + 3] !== 0) {
             return {
+              r: data[i],
               g: data[i + 1],
               b: data[i + 2]
             }

@@ -14,7 +14,10 @@
       </div>
     </div>
     <div class="buttons-container" v-if="hasImage">
-      <PixelButton @click="saveImage">Save</PixelButton>
+      <PixelButton 
+        v-if="isModified"
+        @click="saveImage"
+      >Save</PixelButton>
       <PixelButton @click="frameSprite">Frame sprite</PixelButton>
       <PixelButton @click="clearCanvas">Clear</PixelButton>
     </div>
@@ -35,7 +38,9 @@ export default {
       ctx: null,
       canvasSize: 512,
       originalImage: null,
-      currentScale: 1
+      currentScale: 1,
+      isModified: false,
+      originalFileName: ''
     }
   },
   mounted() {
@@ -56,6 +61,7 @@ export default {
     handleFileSelect(event) {
       const file = event.target.files[0]
       if (file) {
+        this.originalFileName = file.name
         const reader = new FileReader()
         reader.onload = (e) => {
           const img = new Image()
@@ -112,6 +118,8 @@ export default {
       const canvas = this.$refs.canvas
       this.ctx.clearRect(0, 0, canvas.width, canvas.height)
       this.hasImage = false
+      this.isModified = false
+      this.originalFileName = ''
     },
     frameSprite() {
       if (!this.originalImage) return
@@ -184,8 +192,41 @@ export default {
       framedImage.onload = () => {
         this.originalImage = framedImage
         this.renderScaledImage()
+        this.isModified = true
       }
       framedImage.src = tempCanvas.toDataURL()
+    },
+    saveImage() {
+      if (!this.originalImage || !this.isModified) return
+
+      // Create temporary canvas with original size
+      const tempCanvas = document.createElement('canvas')
+      tempCanvas.width = this.originalImage.width
+      tempCanvas.height = this.originalImage.height
+      const tempCtx = tempCanvas.getContext('2d')
+      tempCtx.imageSmoothingEnabled = false
+      tempCtx.drawImage(this.originalImage, 0, 0)
+
+      // Create download link
+      const link = document.createElement('a')
+      link.download = this.getSaveFileName()
+      link.href = tempCanvas.toDataURL('image/png')
+      
+      // Trigger download
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+    getSaveFileName() {
+      if (!this.originalFileName) return 'sprite-framed.png'
+      
+      const nameParts = this.originalFileName.split('.')
+      if (nameParts.length > 1) {
+        // Remove extension and add suffix
+        nameParts.pop()
+        return `${nameParts.join('.')}-framed.png`
+      }
+      return `${this.originalFileName}-framed.png`
     }
   }
 }

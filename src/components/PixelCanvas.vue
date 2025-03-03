@@ -13,8 +13,9 @@
         >
       </div>
     </div>
-    <div class="buttons-container">
-      <PixelButton>Save</PixelButton>
+    <div class="buttons-container" v-if="hasImage">
+      <PixelButton @click="saveImage">Save</PixelButton>
+      <PixelButton @click="frameSprite">Frame sprite</PixelButton>
       <PixelButton @click="clearCanvas">Clear</PixelButton>
     </div>
   </div>
@@ -32,7 +33,9 @@ export default {
     return {
       hasImage: false,
       ctx: null,
-      canvasSize: 512 // Default canvas size
+      canvasSize: 512,
+      originalImage: null,
+      currentScale: 1
     }
   },
   mounted() {
@@ -67,15 +70,25 @@ export default {
     drawImage(img) {
       const canvas = this.$refs.canvas
       
+      // Store original image for later use
+      this.originalImage = img
+      
       // Calculate scale to fit the image while maintaining aspect ratio
-      let scale = 1
       if (img.width > img.height) {
-        // If image is wider than tall, scale based on width
-        scale = Math.floor(this.canvasSize / img.width)
+        this.currentScale = Math.floor(this.canvasSize / img.width)
       } else {
-        // If image is taller than wide, scale based on height
-        scale = Math.floor(this.canvasSize / img.height)
+        this.currentScale = Math.floor(this.canvasSize / img.height)
       }
+
+      this.renderScaledImage()
+      this.hasImage = true
+    },
+    renderScaledImage() {
+      if (!this.originalImage) return
+
+      const canvas = this.$refs.canvas
+      const img = this.originalImage
+      const scale = this.currentScale
 
       // Calculate centered position
       const scaledWidth = img.width * scale
@@ -86,7 +99,7 @@ export default {
       // Clear canvas
       this.ctx.clearRect(0, 0, canvas.width, canvas.height)
       
-      // Draw image with integer scaling
+      // Draw scaled image
       this.ctx.drawImage(
         img,
         x,
@@ -94,13 +107,85 @@ export default {
         scaledWidth,
         scaledHeight
       )
-
-      this.hasImage = true
     },
     clearCanvas() {
       const canvas = this.$refs.canvas
       this.ctx.clearRect(0, 0, canvas.width, canvas.height)
       this.hasImage = false
+    },
+    frameSprite() {
+      if (!this.originalImage) return
+
+      // Create a temporary canvas to work with original size
+      const tempCanvas = document.createElement('canvas')
+      tempCanvas.width = this.originalImage.width
+      tempCanvas.height = this.originalImage.height
+      const tempCtx = tempCanvas.getContext('2d')
+      tempCtx.imageSmoothingEnabled = false
+
+      // Draw original image to temp canvas
+      tempCtx.drawImage(this.originalImage, 0, 0)
+
+      // Get image data at original size
+      const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height)
+      const data = imageData.data
+      const width = tempCanvas.width
+      const height = tempCanvas.height
+      
+      // Create a copy of the original image data
+      const newImageData = new ImageData(
+        new Uint8ClampedArray(data),
+        width,
+        height
+      )
+
+      // Helper function to check if a pixel is transparent
+      const isTransparent = (x, y) => {
+        if (x < 0 || x >= width || y < 0 || y >= height) return true
+        const i = (y * width + x) * 4
+        return data[i + 3] === 0
+      }
+
+      // Helper function to check if a pixel has non-transparent neighbors
+      const hasNonTransparentNeighbor = (x, y) => {
+        const neighbors = [
+          [x - 1, y],     // left
+          [x + 1, y],     // right
+          [x, y - 1],     // top
+          [x, y + 1]      // bottom
+        ]
+
+        return neighbors.some(([nx, ny]) => {
+          if (nx < 0 || nx >= width || ny < 0 || ny >= height) return false
+          const i = (ny * width + nx) * 4
+          return data[i + 3] !== 0
+        })
+      }
+
+      // Loop through every pixel at original size
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const i = (y * width + x) * 4
+
+          if (isTransparent(x, y) && hasNonTransparentNeighbor(x, y)) {
+            newImageData.data[i] = 0      // R
+            newImageData.data[i + 1] = 0  // G
+            newImageData.data[i + 2] = 0  // B
+            newImageData.data[i + 3] = 255 // A
+          }
+        }
+      }
+
+      // Put the modified image data back to temp canvas
+      tempCtx.putImageData(newImageData, 0, 0)
+
+      // Create new image from the modified canvas
+      const framedImage = new Image()
+      framedImage.onload = () => {
+        this.originalImage = framedImage
+        this.renderScaledImage()
+      }
+      framedImage.src = tempCanvas.toDataURL()
     }
   }
 }

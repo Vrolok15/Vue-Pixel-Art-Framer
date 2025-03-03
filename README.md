@@ -7,13 +7,13 @@ I've always hated manually drawing frames around my pixel art sprites. So I made
 
 *Original*
 
-![Example 80%](./src/assets/example-framed-80.png)
+![Example 70%](./src/assets/example-framed-70.png)
 
-*80% frame*
+*With 70% frame*
 
 ![Example 100%](./src/assets/example-framed-100.png)
 
-*100% frame*
+*With 100% frame*
 
 Sprites from 32rogues by Seth - https://sethbb.itch.io/32rogues
 

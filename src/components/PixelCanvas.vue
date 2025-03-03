@@ -313,6 +313,7 @@ export default {
   width: 200px;
   height: 20px;
   -webkit-appearance: none;
+  appearance: none;
   background: var(--color-element);
   outline: none;
   border: 2px solid var(--color-border);

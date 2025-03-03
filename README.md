@@ -3,17 +3,18 @@
 I've always hated manually drawing frames around my pixel art sprites. So I made this tool to save myself some time, maybe you'll find it useful too. Try it here - https://vue-pixel-art-framer-qhljrwc2a-vrolok15s-projects.vercel.app/
 
 ## Example images
+
+*Original:*
+
 ![Example](./src/assets/example.png)
 
-*Original*
+*With 70% frame:*
 
 ![Example 70%](./src/assets/example-framed-70.png)
 
-*With 70% frame*
+*With 100% frame*:
 
 ![Example 100%](./src/assets/example-framed-100.png)
-
-*With 100% frame*
 
 Sprites from 32rogues by Seth - https://sethbb.itch.io/32rogues
 
